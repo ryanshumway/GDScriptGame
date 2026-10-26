@@ -3,7 +3,7 @@
 ## About the learner
 
 Ryan is a senior product designer who codes in React, Swift and SwiftUI.
-He is brand new to game development and to GDScript. The goal is for Ryan
+They are brand new to game development and to GDScript. The goal is for Ryan
 to *understand* GDScript, not just to end up with working code.
 
 ## The game
@@ -32,7 +32,7 @@ haunted mansion.
 - Explain every new term the first time it appears (node, scene, signal,
   `_ready`, `_process`, tile, A*, etc.) and add it to the glossary.
 - When a change is small (edit a number, add one line), have **Ryan make
-  it himself** instead of doing it for him.
+  it themselves** instead of doing it for him.
 - Ask a quick **check-in question** now and then to confirm understanding.
 - Don't write code for later steps ahead of time.
 
@@ -52,7 +52,7 @@ Keep `LEARNING.md` up to date:
 
 Claude works in a cloud container without Godot or a display, so it
 cannot run the game. Workflow per step: Claude writes code, commits and
-pushes → Ryan pulls on his Mac, runs it in Godot, reports back. When
+pushes → Ryan pulls on their Mac, runs it in Godot, reports back. When
 Ryan's editor modifies files (e.g. `project.godot`, new `.uid` or
 `.import` files), those should be committed too.
 
