@@ -32,7 +32,7 @@ haunted mansion.
 - Explain every new term the first time it appears (node, scene, signal,
   `_ready`, `_process`, tile, A*, etc.) and add it to the glossary.
 - When a change is small (edit a number, add one line), have **Ryan make
-  it themselves** instead of doing it for him.
+  it themselves** instead of doing it for them.
 - Ask a quick **check-in question** now and then to confirm understanding.
 - Don't write code for later steps ahead of time.
 
