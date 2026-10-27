@@ -18,3 +18,13 @@ func _draw() -> void:
 			var tile_rect := Rect2(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
 			draw_rect(tile_rect, floor_color)
 			draw_rect(tile_rect, grid_line_color, false, 2.0)
+
+
+## Returns the tile under a pixel position, measured from the room's top-left.
+func pixels_to_tile(pixels: Vector2) -> Vector2i:
+	return Vector2i((pixels / TILE_SIZE).floor())
+
+
+## True if the tile is inside this room.
+func has_tile(tile: Vector2i) -> bool:
+	return Rect2i(Vector2i.ZERO, size_in_tiles).has_point(tile)

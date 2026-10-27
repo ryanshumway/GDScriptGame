@@ -2,11 +2,13 @@
 
 [ext_resource type="PackedScene" path="res://scenes/room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/crew_member.tscn" id="2_crew"]
+[ext_resource type="Script" path="res://scripts/floorplan.gd" id="3_floorplan"]
 
 [node name="Main" type="Node2D"]
 
 [node name="Floorplan" type="Node2D" parent="."]
 position = Vector2(520, 240)
+script = ExtResource("3_floorplan")
 
 [node name="Room" parent="Floorplan" instance=ExtResource("1_room")]
 

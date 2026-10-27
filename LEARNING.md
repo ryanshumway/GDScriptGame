@@ -2,17 +2,34 @@
 
 ## Glossary
 
+- **`$NodeName`** — Shorthand for "my child node with this name," e.g.
+  `$Room`. Like a React `ref` or a UIKit `@IBOutlet`.
 - **`class_name`** — Gives a script a global name (e.g. `Room`) so other
   scripts can use it as a type and read its constants (`Room.TILE_SIZE`).
 - **`const`** — A value that never changes.
+- **Default vs. override** — The value written in a script
+  (`@export var x := 5`) is the *default*. Changing it on one node in the
+  Inspector *overrides* it for that node only, and a ↺ arrow appears to
+  reset it. Like a default prop value vs. a prop you pass.
+- **`delta`** — The number of seconds since the last frame (about 0.016 at
+  60 FPS). Multiply speeds by it so movement is the same on fast and slow
+  computers: `distance = speed * delta`.
 - **`_draw()`** — A function Godot calls when a node needs to paint
   itself. You draw shapes inside it with `draw_rect`, `draw_circle`, etc.
   Runs once, then again only when asked (`queue_redraw()`), not every frame.
+  By default it only runs in the game, not in the editor's canvas.
 - **`@export`** — Marks a variable so it shows up in the editor's
   Inspector, where you can change it without touching code. Like a prop
   with a default value.
 - **`extends`** — Says which built-in node type a script builds on, like
   subclassing in Swift (`class Room: Node2D`).
+- **FileSystem panel** — Bottom-left in the editor. Shows files and folders
+  on disk, like Finder. Dragging here *moves* files.
+- **`floor()`** — Rounds down. `2.7` → `2`. Used to turn pixels into tiles.
+- **Frame** — One redraw of the screen. Games redraw about 60 times per
+  second, whether or not anything changed.
+- **Game loop** — The engine's endless cycle: handle input, update every
+  node (`_process`), draw, repeat. Unlike a web app, which waits for events.
 - **`.gd` file** — A GDScript file. Attached to a node to give it behavior,
   like the logic inside a React component.
 - **GDScript** — Godot's own scripting language. Python-like syntax
@@ -21,17 +38,29 @@
   automatically, so it's ignored by git.
 - **`.import` file** — Small sidecar file Godot creates next to an asset
   (image, sound) recording how it was imported. Committed to git.
+- **Input event (`InputEvent`)** — An object describing one input: a key
+  press, a mouse move, a click. Mouse clicks are `InputEventMouseButton`.
+- **Inspector** — Right-hand panel in the editor. Shows and edits the
+  properties of the selected node, including its attached script.
 - **Instance (of a scene)** — A copy of a saved scene placed inside another
   scene. Like writing `<Room />` in JSX.
 - **Main scene** — The scene Godot starts when you press Play. Set in
   `project.godot` (`run/main_scene`).
+- **`move_toward()`** — Moves a point up to N pixels toward another point,
+  never overshooting. `position.move_toward(target, speed * delta)`.
 - **Node** — The smallest building block in Godot. Each node does one job
   (draw a shape, play a sound, hold a camera). Like a built-in element such
   as `<div>` or `<input>`, or a `UIView` in UIKit.
 - **Node2D** — The basic node for 2D things. Has a position, rotation and
   scale. Children move with their parent.
+- **`@onready`** — Fills in a variable just before `_ready()` runs, when
+  child nodes exist. Used with `$`: `@onready var room: Room = $Room`.
+- **Play (▶)** — Runs the game in a new window. ⌘B on Mac (F5 elsewhere);
+  ⌘R runs only the open scene; ⌘. stops. No terminal or dev server.
 - **Position (local)** — A node's position is relative to its parent, not
   the screen. Move the parent and all children move with it.
+- **`_process(delta)`** — Called by Godot on every node, once per frame.
+  Where continuous things like movement happen.
 - **Project Manager** — The launcher window Godot shows first, listing your
   projects. Not the editor itself.
 - **`project.godot`** — The file that makes a folder a Godot project. Holds
@@ -39,20 +68,33 @@
 - **`_ready()`** — Called once when a node (and all its children) has been
   added to the running game. Like `useEffect(() => {}, [])` or
   `viewDidLoad`.
-- **Rect2 / Vector2 / Vector2i** — Built-in types. `Vector2` is an (x, y)
-  pair of decimals (pixels); `Vector2i` is an (x, y) pair of whole numbers
-  (tile coordinates). `Rect2` is a rectangle: position + size.
+- **Rect2 / Rect2i / Vector2 / Vector2i** — Built-in types. `Vector2` is an
+  (x, y) pair of decimals (pixels); `Vector2i` is an (x, y) pair of whole
+  numbers (tile coordinates). `Rect2` is a rectangle: position + size;
+  `Rect2i` is the whole-number version. `has_point()` asks "is this inside?"
 - **`res://`** — "The root of this project." Godot's paths start here, e.g.
   `res://scenes/main.tscn`.
 - **Scene** — A saved, reusable tree of nodes. Can be any size: a single
   crew member, a room, a whole ship. Scenes nest inside other scenes, like
   React components. Unlike React, nodes are long-lived objects you change
-  directly (`crew.position = ...`), not re-rendered from state.
+  directly (`crew.position = ...`), not re-rendered from state. Not every
+  node needs its own scene; one-off nodes (like `Floorplan`) just live
+  inside a scene.
+- **Scene panel** — Top-left in the editor. Shows the node tree of the open
+  scene, like Xcode's view hierarchy. Drop a script on a node here to
+  attach it.
+- **`signi()`** — Turns a whole number into -1, 0 or 1 depending on its
+  sign. `signi(-3)` → `-1`.
 - **Tile** — One square cell of a grid. Game logic thinks in tiles
   (`(2, 3)`); drawing thinks in pixels (`(120, 168)`). Converting between
   the two is a constant job.
 - **`.tscn` file** — A saved scene ("text scene"). Plain text, so it diffs
-  nicely in git.
+  nicely in git. If it changes outside the editor, use
+  Scene → Reload Saved Scene to see the change.
+- **`.uid` file** — Sidecar file Godot creates next to each script, giving
+  it a permanent ID so references survive renames. Committed to git.
+- **`_unhandled_input(event)`** — Called by Godot for each input event that
+  no UI element used up. Where game clicks and key presses are handled.
 - **Viewport** — The area the game draws into. Its size is set in
   `project.godot` (we use 1280×720).
 
@@ -80,3 +122,21 @@
 - Logic uses **tile coordinates** (`Vector2i`); drawing uses **pixels**
   (`Vector2`). `tile_to_pixels()` converts: `tile * TILE_SIZE + half a tile`.
 - `@export` variables can be tweaked in the Inspector.
+
+### Step 3 — Right-click a tile and the character walks there
+
+- Running the game: ▶ / ⌘B in the editor. Tiles count from `(0, 0)` at
+  the top-left, and y grows *downward*.
+- `Floorplan` got a script and became the **coordinator**: it listens for
+  right-clicks in `_unhandled_input`, converts the mouse position to a tile
+  (`pixels_to_tile` = divide by tile size, round down), checks the tile is
+  in the room (`has_tile`), and orders the crew member to `walk_to` it.
+- Movement lives in `_process(delta)`, which runs every frame. The crew
+  member slides toward the center of its current tile with `move_toward`;
+  once centered, if it's not at the target, it claims the next tile (x
+  first, then y — an L-shaped path, to be replaced by pathfinding).
+- `tile_position` is the tile being stood on *or entered*; `target_tile` is
+  where it was ordered to go. Clicking mid-walk just changes the target.
+- Editor lessons: the **FileSystem** panel is files on disk; the **Scene**
+  panel is the node tree. `.tscn` files are text, and the editor doesn't
+  notice outside edits until you reload the scene.
