@@ -6,6 +6,10 @@
   `$Room`. Like a React `ref` or a UIKit `@IBOutlet`.
 - **`class_name`** — Gives a script a global name (e.g. `Room`) so other
   scripts can use it as a type and read its constants (`Room.TILE_SIZE`).
+- **`Color`** — `Color(r, g, b)` with each channel 0.0–1.0 (not 0–255;
+  divide by 255 to convert). Optional 4th value is alpha (opacity).
+  Hex works too: `Color("#5C7A99")`. `@export`ed colors get a color
+  picker in the Inspector.
 - **`const`** — A value that never changes.
 - **Default vs. override** — The value written in a script
   (`@export var x := 5`) is the *default*. Changing it on one node in the
@@ -30,6 +34,11 @@
   second, whether or not anything changed.
 - **Game loop** — The engine's endless cycle: handle input, update every
   node (`_process`), draw, repeat. Unlike a web app, which waits for events.
+- **`get_children()`** — Returns a list of a node's direct children, so
+  you can loop over them: `for child in get_children():`.
+- **Draw order** — Siblings draw top to bottom in the Scene panel, so the
+  last child is on top. Children draw over their parent. Inside `_draw`,
+  later calls paint over earlier ones. `z_index` overrides this, like CSS.
 - **`.gd` file** — A GDScript file. Attached to a node to give it behavior,
   like the logic inside a React component.
 - **GDScript** — Godot's own scripting language. Python-like syntax
@@ -140,3 +149,19 @@
 - Editor lessons: the **FileSystem** panel is files on disk; the **Scene**
   panel is the node tree. `.tscn` files are text, and the editor doesn't
   notice outside edits until you reload the scene.
+
+### Step 4 — A second room connected by a door
+
+- Tiles now count from the **Floorplan's** top-left, not each room's. Each
+  room has a `grid_position` (RoomA at `(0, 0)`, RoomB at `(6, 0)`) and
+  moves itself there in `_ready`.
+- A `Door` is its own small scene: one walkable tile between the rooms.
+- `Floorplan.is_walkable` loops over its children and asks each Room or
+  Door `has_tile`. Adding a room needs no code change.
+- **`.tscn` vs `.gd`:** the scene says *what exists* and its values; the
+  script says *how it behaves*. A script does nothing until attached.
+- **Looks vs logic:** the door is one whole tile for walking, but `_draw`
+  paints only a thin bar — like a hit area bigger than the icon.
+  `door_width` and colors are `@export`ed so they can be tuned per door.
+- Known gap: the simple "across, then up/down" walk can cut through
+  walls. Pathfinding (Step 5) fixes it.

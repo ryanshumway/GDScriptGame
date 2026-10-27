@@ -1,15 +1,23 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://2w1b3rvyixdf"]
 
 [ext_resource type="PackedScene" path="res://scenes/room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/crew_member.tscn" id="2_crew"]
-[ext_resource type="Script" path="res://scripts/floorplan.gd" id="3_floorplan"]
+[ext_resource type="Script" uid="uid://3k5y3plf08ei" path="res://scripts/floorplan.gd" id="3_floorplan"]
+[ext_resource type="PackedScene" path="res://scenes/door.tscn" id="4_door"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=972698724]
 
-[node name="Floorplan" type="Node2D" parent="."]
-position = Vector2(520, 240)
+[node name="Floorplan" type="Node2D" parent="." unique_id=1029495219]
+position = Vector2(376, 240)
 script = ExtResource("3_floorplan")
 
-[node name="Room" parent="Floorplan" instance=ExtResource("1_room")]
+[node name="RoomA" parent="Floorplan" unique_id=1910505481 instance=ExtResource("1_room")]
 
-[node name="CrewMember" parent="Floorplan" instance=ExtResource("2_crew")]
+[node name="Door" parent="Floorplan" unique_id=2146108278 instance=ExtResource("4_door")]
+grid_position = Vector2i(5, 2)
+
+[node name="RoomB" parent="Floorplan" unique_id=1903882479 instance=ExtResource("1_room")]
+grid_position = Vector2i(6, 0)
+floor_color = Color(0.057787344, 0.44611079, 0.74820185, 1)
+
+[node name="CrewMember" parent="Floorplan" unique_id=1427045653 instance=ExtResource("2_crew")]
