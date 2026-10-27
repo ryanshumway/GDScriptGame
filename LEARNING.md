@@ -5,9 +5,12 @@
 - **A\* ("A-star")** — A classic search for the shortest route on a map.
   Explores tiles in order of *steps so far + guessed steps remaining*, so
   it heads toward the goal and fans out around walls.
+- **Alpha** — A color's opacity, the 4th value in `Color(r, g, b, a)`.
+  `1.0` is solid, `0.35` is mostly see-through.
 - **`AStarGrid2D`** — Godot's built-in A\* for square grids. Set its
   `region` (grid size), call `update()`, mark blocked tiles with
   `set_point_solid()`, then ask `get_id_path(from, to)` for a list of tiles.
+- **`back()`** — Returns the last item of an array. Like JS `.at(-1)`.
 - **`class_name`** — Gives a script a global name (e.g. `Room`) so other
   scripts can use it as a type and read its constants (`Room.TILE_SIZE`).
 - **`Color`** — `Color(r, g, b)` with each channel 0.0–1.0 (not 0–255;
@@ -139,8 +142,13 @@
   it a permanent ID so references survive renames. Committed to git.
 - **`_unhandled_input(event)`** — Called by Godot for each input event that
   no UI element used up. Where game clicks and key presses are handled.
+- **`_unused` (leading underscore)** — Prefixing a parameter with `_`
+  (e.g. `_delta`) says "I'm not using this," which silences a warning.
 - **Viewport** — The area the game draws into. Its size is set in
   `project.godot` (we use 1280×720).
+- **`visible` / `show()` / `hide()`** — Every node can be hidden without
+  being removed, like CSS `display: none`. Hidden nodes (and their
+  children) aren't drawn.
 
 ## What we learned
 
@@ -227,3 +235,16 @@
 - The green ring is drawn with `draw_arc` when `is_selected` is true.
   `is_selected` has a **setter** that calls `queue_redraw()`, because Godot
   doesn't redraw just because a variable changed.
+
+### Step 6b — Highlight the destination tile
+
+- `TileHighlight` is its own node, placed in the tree **between the rooms
+  and the crew** so it draws above the floor and below the circles. It
+  draws its translucent square once; after that we only move it and
+  `show()`/`hide()` it.
+- `CrewMember` answers two questions: `is_walking()` and `destination()`
+  (the last tile of its path, via `back()`).
+- `Floorplan._process` re-decides every frame: if the selected crew member
+  is walking, highlight its destination, otherwise hide. Deriving it fresh
+  each frame (like rendering from state in React) means arriving,
+  deselecting, rerouting and switching selection all just work.

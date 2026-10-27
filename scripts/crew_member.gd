@@ -41,6 +41,18 @@ func walk_path(new_path: Array[Vector2i]) -> void:
 	path = new_path
 
 
+## True while the crew member is still on the way somewhere.
+func is_walking() -> bool:
+	return not path.is_empty() or position != tile_to_pixels(tile_position)
+
+
+## The tile the crew member will end up on once it stops walking.
+func destination() -> Vector2i:
+	if path.is_empty():
+		return tile_position
+	return path.back()
+
+
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, radius, color)
 	if is_selected:

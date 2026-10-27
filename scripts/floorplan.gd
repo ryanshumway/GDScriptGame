@@ -10,6 +10,8 @@ var pathfinder := AStarGrid2D.new()
 ## The crew member that right-clicks will move. Null when nobody is selected.
 var selected_crew: CrewMember = null
 
+@onready var tile_highlight: TileHighlight = $TileHighlight
+
 
 func _ready() -> void:
 	pathfinder.region = Rect2i(Vector2i.ZERO, grid_size)
@@ -19,6 +21,14 @@ func _ready() -> void:
 		for y in range(grid_size.y):
 			var tile := Vector2i(x, y)
 			pathfinder.set_point_solid(tile, not is_walkable(tile))
+
+
+func _process(_delta: float) -> void:
+	# Show where the selected crew member is heading, but only while it's on the way.
+	if selected_crew != null and selected_crew.is_walking():
+		tile_highlight.show_tile(selected_crew.destination())
+	else:
+		tile_highlight.hide()
 
 
 func _unhandled_input(event: InputEvent) -> void:
