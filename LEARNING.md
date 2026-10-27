@@ -2,8 +2,12 @@
 
 ## Glossary
 
-- **`$NodeName`** — Shorthand for "my child node with this name," e.g.
-  `$Room`. Like a React `ref` or a UIKit `@IBOutlet`.
+- **A\* ("A-star")** — A classic search for the shortest route on a map.
+  Explores tiles in order of *steps so far + guessed steps remaining*, so
+  it heads toward the goal and fans out around walls.
+- **`AStarGrid2D`** — Godot's built-in A\* for square grids. Set its
+  `region` (grid size), call `update()`, mark blocked tiles with
+  `set_point_solid()`, then ask `get_id_path(from, to)` for a list of tiles.
 - **`class_name`** — Gives a script a global name (e.g. `Room`) so other
   scripts can use it as a type and read its constants (`Room.TILE_SIZE`).
 - **`Color`** — `Color(r, g, b)` with each channel 0.0–1.0 (not 0–255;
@@ -22,6 +26,9 @@
   itself. You draw shapes inside it with `draw_rect`, `draw_circle`, etc.
   Runs once, then again only when asked (`queue_redraw()`), not every frame.
   By default it only runs in the game, not in the editor's canvas.
+- **Draw order** — Siblings draw top to bottom in the Scene panel, so the
+  last child is on top. Children draw over their parent. Inside `_draw`,
+  later calls paint over earlier ones. `z_index` overrides this, like CSS.
 - **`@export`** — Marks a variable so it shows up in the editor's
   Inspector, where you can change it without touching code. Like a prop
   with a default value.
@@ -34,15 +41,12 @@
   second, whether or not anything changed.
 - **Game loop** — The engine's endless cycle: handle input, update every
   node (`_process`), draw, repeat. Unlike a web app, which waits for events.
-- **`get_children()`** — Returns a list of a node's direct children, so
-  you can loop over them: `for child in get_children():`.
-- **Draw order** — Siblings draw top to bottom in the Scene panel, so the
-  last child is on top. Children draw over their parent. Inside `_draw`,
-  later calls paint over earlier ones. `z_index` overrides this, like CSS.
 - **`.gd` file** — A GDScript file. Attached to a node to give it behavior,
   like the logic inside a React component.
 - **GDScript** — Godot's own scripting language. Python-like syntax
   (indentation instead of braces), built to work closely with nodes.
+- **`get_children()`** — Returns a list of a node's direct children, so
+  you can loop over them: `for child in get_children():`.
 - **`.godot/` folder** — Godot's cache of processed files. Rebuilt
   automatically, so it's ignored by git.
 - **`.import` file** — Small sidecar file Godot creates next to an asset
@@ -57,15 +61,22 @@
   `project.godot` (`run/main_scene`).
 - **`move_toward()`** — Moves a point up to N pixels toward another point,
   never overshooting. `position.move_toward(target, speed * delta)`.
+- **`.new()`** — Creates an object from a class: `AStarGrid2D.new()`. Like
+  `new X()` in JS or `X()` in Swift. Objects that aren't nodes don't live in
+  the scene tree and aren't drawn.
 - **Node** — The smallest building block in Godot. Each node does one job
   (draw a shape, play a sound, hold a camera). Like a built-in element such
   as `<div>` or `<input>`, or a `UIView` in UIKit.
 - **Node2D** — The basic node for 2D things. Has a position, rotation and
   scale. Children move with their parent.
+- **`$NodeName`** — Shorthand for "my child node with this name," e.g.
+  `$Room`. Like a React `ref` or a UIKit `@IBOutlet`.
 - **`@onready`** — Fills in a variable just before `_ready()` runs, when
   child nodes exist. Used with `$`: `@onready var room: Room = $Room`.
 - **Play (▶)** — Runs the game in a new window. ⌘B on Mac (F5 elsewhere);
   ⌘R runs only the open scene; ⌘. stops. No terminal or dev server.
+- **`pop_front()`** — Removes and returns the first item of an array. Like
+  JS `shift()`.
 - **Position (local)** — A node's position is relative to its parent, not
   the screen. Move the parent and all children move with it.
 - **`_process(delta)`** — Called by Godot on every node, once per frame.
@@ -94,12 +105,18 @@
   attach it.
 - **`signi()`** — Turns a whole number into -1, 0 or 1 depending on its
   sign. `signi(-3)` → `-1`.
+- **`slice(n)`** — Returns a copy of an array from index `n` onward. Like
+  JS `.slice(n)`.
+- **Solid tile** — A tile the pathfinder may not step on (walls, empty
+  space).
 - **Tile** — One square cell of a grid. Game logic thinks in tiles
   (`(2, 3)`); drawing thinks in pixels (`(120, 168)`). Converting between
   the two is a constant job.
 - **`.tscn` file** — A saved scene ("text scene"). Plain text, so it diffs
   nicely in git. If it changes outside the editor, use
   Scene → Reload Saved Scene to see the change.
+- **Typed array** — `Array[Vector2i]`: a list that may only hold one type.
+  Like `[Vector2i]` in Swift or `Vector2i[]` in TypeScript.
 - **`.uid` file** — Sidecar file Godot creates next to each script, giving
   it a permanent ID so references survive renames. Committed to git.
 - **`_unhandled_input(event)`** — Called by Godot for each input event that
@@ -165,3 +182,19 @@
   `door_width` and colors are `@export`ed so they can be tuned per door.
 - Known gap: the simple "across, then up/down" walk can cut through
   walls. Pathfinding (Step 5) fixes it.
+
+### Step 5 — Pathfinding through the door with `AStarGrid2D`
+
+- **A\*** finds the shortest route by exploring the most promising tiles
+  first (steps so far + guess of steps left). Godot's `AStarGrid2D` does
+  it for us.
+- `Floorplan` builds the pathfinder once in `_ready`: set the region
+  (`grid_size`, 11×5), no diagonals, `update()`, then mark every tile that
+  isn't a room or door as **solid** (reusing `is_walkable`).
+- On right-click, `get_id_path(from, to)` returns the route as a list of
+  tiles. `slice(1)` drops the first tile (where the crew member stands).
+- `CrewMember` got simpler: it holds a typed array `path` and, each time
+  it's centered on a tile, `pop_front()`s the next one. The floorplan gives
+  directions; the crew member drives.
+- A crew member starting outside the grid breaks pathfinding, so starting
+  tiles must be inside a room.

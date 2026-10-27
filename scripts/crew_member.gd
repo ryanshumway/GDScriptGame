@@ -3,19 +3,18 @@ extends Node2D
 ## A crew member, drawn as a circle standing on one tile.
 
 ## Which tile the crew member stands on, counted from the top-left tile (0, 0).
-@export var tile_position := Vector2i(2, 5)
+@export var tile_position := Vector2i(2, 2)
 @export var color := Color(0.93, 0.93, 0.93)
 @export var radius := 16.0
 ## How fast the crew member walks, in pixels per second.
 @export var walk_speed := 150.0
 
-## The tile the crew member was last ordered to walk to.
-var target_tile: Vector2i
+## The tiles still to walk through, in order. Empty means standing still.
+var path: Array[Vector2i] = []
 
 
 func _ready() -> void:
 	position = tile_to_pixels(tile_position)
-	target_tile = tile_position
 
 
 func _process(delta: float) -> void:
@@ -25,22 +24,14 @@ func _process(delta: float) -> void:
 		position = position.move_toward(tile_center, walk_speed * delta)
 		return
 
-	# Standing on a tile's center. If it isn't the target, step into the next tile.
-	if tile_position != target_tile:
-		tile_position += step_toward(target_tile)
+	# Standing on a tile's center. If there's more path, step into the next tile.
+	if not path.is_empty():
+		tile_position = path.pop_front()
 
 
-## Orders the crew member to walk to a tile.
-func walk_to(tile: Vector2i) -> void:
-	target_tile = tile
-
-
-## Returns a one-tile step toward a target: across first, then up or down.
-func step_toward(target: Vector2i) -> Vector2i:
-	var difference := target - tile_position
-	if difference.x != 0:
-		return Vector2i(signi(difference.x), 0)
-	return Vector2i(0, signi(difference.y))
+## Orders the crew member to walk through a list of tiles, in order.
+func walk_path(new_path: Array[Vector2i]) -> void:
+	path = new_path
 
 
 func _draw() -> void:
