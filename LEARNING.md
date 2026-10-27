@@ -29,6 +29,12 @@
 - **Draw order** — Siblings draw top to bottom in the Scene panel, so the
   last child is on top. Children draw over their parent. Inside `_draw`,
   later calls paint over earlier ones. `z_index` overrides this, like CSS.
+- **`draw_arc()`** — Draws part of a circle's outline: center, radius,
+  start angle, end angle, segment count, color, width. `0` to `TAU` is a
+  full ring.
+- **Early return** — Exiting a function at the top when there's nothing to
+  do (`if not ...: return`), so the rest of the code stays un-nested.
+- **`elif`** — GDScript's `else if`.
 - **`@export`** — Marks a variable so it shows up in the editor's
   Inspector, where you can change it without touching code. Like a prop
   with a default value.
@@ -49,6 +55,8 @@
   you can loop over them: `for child in get_children():`.
 - **`.godot/` folder** — Godot's cache of processed files. Rebuilt
   automatically, so it's ignored by git.
+- **Hit test** — Working out what's under the mouse. For a circle: is the
+  distance from the click to its center less than its radius?
 - **`.import` file** — Small sidecar file Godot creates next to an asset
   (image, sound) recording how it was imported. Committed to git.
 - **Input event (`InputEvent`)** — An object describing one input: a key
@@ -71,6 +79,8 @@
   scale. Children move with their parent.
 - **`$NodeName`** — Shorthand for "my child node with this name," e.g.
   `$Room`. Like a React `ref` or a UIKit `@IBOutlet`.
+- **`null`** — "Nothing." A variable that could hold an object but
+  currently doesn't. Like `nil` in Swift or `null` in JS.
 - **`@onready`** — Fills in a variable just before `_ready()` runs, when
   child nodes exist. Used with `$`: `@onready var room: Room = $Room`.
 - **Play (▶)** — Runs the game in a new window. ⌘B on Mac (F5 elsewhere);
@@ -85,6 +95,10 @@
   projects. Not the editor itself.
 - **`project.godot`** — The file that makes a folder a Godot project. Holds
   project settings (name, window size, main scene). Like `package.json`.
+- **`queue_redraw()`** — Asks Godot to run a node's `_draw()` again next
+  frame. Changing a variable does *not* redraw on its own (unlike React).
+- **Radians / `TAU`** — Godot measures angles in radians, not degrees.
+  `TAU` (≈ 6.28) is a full circle; `TAU / 2` is half.
 - **`_ready()`** — Called once when a node (and all its children) has been
   added to the running game. Like `useEffect(() => {}, [])` or
   `viewDidLoad`.
@@ -103,6 +117,10 @@
 - **Scene panel** — Top-left in the editor. Shows the node tree of the open
   scene, like Xcode's view hierarchy. Drop a script on a node here to
   attach it.
+- **Selection state** — Which object the player has picked. Kept in one
+  place (the floorplan's `selected_crew`) since only one can be selected.
+- **Setter (`set(value):`)** — Code that runs whenever a variable is
+  assigned. Like Swift's `didSet`. We use it to redraw on change.
 - **`signi()`** — Turns a whole number into -1, 0 or 1 depending on its
   sign. `signi(-3)` → `-1`.
 - **`slice(n)`** — Returns a copy of an array from index `n` onward. Like
@@ -198,3 +216,14 @@
   directions; the crew member drives.
 - A crew member starting outside the grid breaks pathfinding, so starting
   tiles must be inside a room.
+
+### Step 6a — Two crew members: left-click to select, right-click to move
+
+- A second `crew_member.tscn` instance, with its own color override.
+- `Floorplan` owns the **selection state**: `selected_crew`, a crew member
+  or `null`. Left-click selects whatever circle is under the mouse (a hit
+  test using `distance_to` and `radius`); clicking empty floor deselects.
+  Right-click moves only the selected crew member.
+- The green ring is drawn with `draw_arc` when `is_selected` is true.
+  `is_selected` has a **setter** that calls `queue_redraw()`, because Godot
+  doesn't redraw just because a variable changed.

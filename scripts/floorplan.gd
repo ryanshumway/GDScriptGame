@@ -7,7 +7,8 @@ extends Node2D
 ## Finds the shortest route between two tiles, going around solid tiles.
 var pathfinder := AStarGrid2D.new()
 
-@onready var crew_member: CrewMember = $CrewMember
+## The crew member that right-clicks will move. Null when nobody is selected.
+var selected_crew: CrewMember = null
 
 
 func _ready() -> void:
@@ -21,12 +22,35 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-		var tile := pixels_to_tile(get_local_mouse_position())
+	if not (event is InputEventMouseButton and event.pressed):
+		return
+
+	var mouse := get_local_mouse_position()
+	if event.button_index == MOUSE_BUTTON_LEFT:
+		select_crew(crew_at_point(mouse))
+	elif event.button_index == MOUSE_BUTTON_RIGHT and selected_crew != null:
+		var tile := pixels_to_tile(mouse)
 		if is_walkable(tile):
-			var path := pathfinder.get_id_path(crew_member.tile_position, tile)
+			var path := pathfinder.get_id_path(selected_crew.tile_position, tile)
 			# The first tile in the path is where the crew member already is.
-			crew_member.walk_path(path.slice(1))
+			selected_crew.walk_path(path.slice(1))
+
+
+## Selects a crew member, or nobody if given null. Deselects the previous one.
+func select_crew(crew: CrewMember) -> void:
+	if selected_crew != null:
+		selected_crew.is_selected = false
+	selected_crew = crew
+	if selected_crew != null:
+		selected_crew.is_selected = true
+
+
+## Returns the crew member whose circle contains a point, or null if none does.
+func crew_at_point(point: Vector2) -> CrewMember:
+	for child in get_children():
+		if child is CrewMember and child.position.distance_to(point) <= child.radius:
+			return child
+	return null
 
 
 ## Returns the floorplan tile under a pixel position, measured from the floorplan's top-left.

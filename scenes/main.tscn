@@ -21,3 +21,7 @@ grid_position = Vector2i(6, 0)
 floor_color = Color(0.057787344, 0.44611079, 0.74820185, 1)
 
 [node name="CrewMember" parent="Floorplan" unique_id=1427045653 instance=ExtResource("2_crew")]
+
+[node name="CrewMember2" parent="Floorplan" instance=ExtResource("2_crew")]
+tile_position = Vector2i(8, 3)
+color = Color(0.95, 0.75, 0.55, 1)

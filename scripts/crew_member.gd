@@ -8,9 +8,16 @@ extends Node2D
 @export var radius := 16.0
 ## How fast the crew member walks, in pixels per second.
 @export var walk_speed := 150.0
+@export var selected_color := Color(0.3, 0.9, 0.3)
 
 ## The tiles still to walk through, in order. Empty means standing still.
 var path: Array[Vector2i] = []
+
+## True while the player has this crew member selected.
+var is_selected := false:
+	set(value):
+		is_selected = value
+		queue_redraw()
 
 
 func _ready() -> void:
@@ -36,6 +43,8 @@ func walk_path(new_path: Array[Vector2i]) -> void:
 
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, radius, color)
+	if is_selected:
+		draw_arc(Vector2.ZERO, radius + 3.0, 0.0, TAU, 32, selected_color, 3.0)
 
 
 ## Returns the pixel position of the center of a tile.
