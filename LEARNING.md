@@ -248,3 +248,21 @@
   is walking, highlight its destination, otherwise hide. Deriving it fresh
   each frame (like rendering from state in React) means arriving,
   deselecting, rerouting and switching selection all just work.
+
+### Step 6c — A wall the pathfinder goes around
+
+- `Wall` is its own scene, like `Door`, but with a `size_in_tiles` so one
+  node can cover several tiles. It's a blocking fixture without art.
+- `is_walkable` now means "on a room or door tile **and not** on a wall."
+  It can't return early on finding floor (a wall might come later in the
+  child list), so it remembers `on_floor` and lets any wall win.
+- Nothing else changed: the pathfinder already marks every non-walkable
+  tile solid, so it routes around the wall automatically, and right-clicks
+  on the wall are ignored.
+
+### Milestone 1 complete
+
+Two rooms joined by a door, a wall, two selectable crew members, and
+A\* pathfinding with a destination highlight. Key ideas so far: scenes vs
+scripts, tiles vs pixels, the game loop (`_process`), draw order, and
+keeping looks separate from logic.

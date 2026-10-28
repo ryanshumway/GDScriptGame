@@ -68,9 +68,12 @@ func pixels_to_tile(pixels: Vector2) -> Vector2i:
 	return Vector2i((pixels / Room.TILE_SIZE).floor())
 
 
-## True if a tile is inside any room or door.
+## True if a tile is inside a room or door and not covered by a wall.
 func is_walkable(tile: Vector2i) -> bool:
+	var on_floor := false
 	for child in get_children():
+		if child is Wall and child.has_tile(tile):
+			return false
 		if (child is Room or child is Door) and child.has_tile(tile):
-			return true
-	return false
+			on_floor = true
+	return on_floor
