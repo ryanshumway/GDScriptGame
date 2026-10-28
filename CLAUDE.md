@@ -44,6 +44,9 @@ Keep `LEARNING.md` up to date:
 
 ## Git
 
+- Never commit to `main` directly. Each milestone (or other piece of work)
+  gets its own branch, e.g. `milestone-2-hazard`. When it's done, push the
+  branch and open a pull request into `main`.
 - Commit after each **working** step (once Ryan confirms it runs), with a
   clear message like `Step 3: click a tile to walk there tile by tile`.
 - Never commit the `.godot/` folder (it's a cache).
