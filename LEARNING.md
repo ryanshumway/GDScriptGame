@@ -11,6 +11,9 @@
   `region` (grid size), call `update()`, mark blocked tiles with
   `set_point_solid()`, then ask `get_id_path(from, to)` for a list of tiles.
 - **`back()`** — Returns the last item of an array. Like JS `.at(-1)`.
+- **`clampf()`** — Forces a decimal into a range: `clampf(150, 0, 100)` →
+  `100`. Like `Math.min(Math.max(v, lo), hi)`. `clampi` is the whole-number
+  version.
 - **`class_name`** — Gives a script a global name (e.g. `Room`) so other
   scripts can use it as a type and read its constants (`Room.TILE_SIZE`).
 - **`Color`** — `Color(r, g, b)` with each channel 0.0–1.0 (not 0–255;
@@ -58,6 +61,8 @@
   you can loop over them: `for child in get_children():`.
 - **`.godot/` folder** — Godot's cache of processed files. Rebuilt
   automatically, so it's ignored by git.
+- **Health / max health** — Two numbers; a health bar shows their ratio
+  (`health / max_health`), like a progress bar's `width: 40%`.
 - **Hit test** — Working out what's under the mouse. For a circle: is the
   distance from the click to its center less than its radius?
 - **`.import` file** — Small sidecar file Godot creates next to an asset
@@ -130,6 +135,8 @@
   JS `.slice(n)`.
 - **Solid tile** — A tile the pathfinder may not step on (walls, empty
   space).
+- **Station** — Our theme-agnostic name for a spot where crew do work
+  (a generator, a barricade, a helm…). Has health; crew repair it.
 - **Tile** — One square cell of a grid. Game logic thinks in tiles
   (`(2, 3)`); drawing thinks in pixels (`(120, 168)`). Converting between
   the two is a constant job.
@@ -266,3 +273,15 @@ Two rooms joined by a door, a wall, two selectable crew members, and
 A\* pathfinding with a destination highlight. Key ideas so far: scenes vs
 scripts, tiles vs pixels, the game loop (`_process`), draw order, and
 keeping looks separate from logic.
+
+## Milestone 2
+
+### Step 7a — A station with a health bar
+
+- `Station` is its own scene: one tile, drawn as an inset square, with a
+  health bar floating just above (negative y = above the node).
+- `health` has a **setter** that clamps it to `0..max_health` and calls
+  `queue_redraw()`, so anything can change health and the bar follows.
+- The bar is two rectangles: a dark full-width background, then green at
+  `width × health / max_health` on top.
+- Stations aren't walls, so crew can stand on them.

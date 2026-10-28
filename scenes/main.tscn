@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/door.tscn" id="4_door"]
 [ext_resource type="Script" path="res://scripts/tile_highlight.gd" id="5_highlight"]
 [ext_resource type="PackedScene" path="res://scenes/wall.tscn" id="6_wall"]
+[ext_resource type="PackedScene" path="res://scenes/station.tscn" id="7_station"]
 
 [node name="Main" type="Node2D" unique_id=972698724]
 
@@ -25,6 +26,9 @@ floor_color = Color(0.057787344, 0.44611079, 0.74820185, 1)
 [node name="Wall" parent="Floorplan" instance=ExtResource("6_wall")]
 grid_position = Vector2i(3, 0)
 size_in_tiles = Vector2i(1, 4)
+
+[node name="Station" parent="Floorplan" instance=ExtResource("7_station")]
+grid_position = Vector2i(9, 1)
 
 [node name="TileHighlight" type="Node2D" parent="Floorplan"]
 visible = false
