@@ -23,12 +23,19 @@ func _ready() -> void:
 			pathfinder.set_point_solid(tile, not is_walkable(tile))
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	# Show where the selected crew member is heading, but only while it's on the way.
 	if selected_crew != null and selected_crew.is_walking():
 		tile_highlight.show_tile(selected_crew.destination())
 	else:
 		tile_highlight.hide()
+
+	# Crew standing still on a station repair it.
+	for child in get_children():
+		if child is CrewMember and not child.is_walking():
+			var station := station_at(child.tile_position)
+			if station != null:
+				station.health += child.repair_rate * delta
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -53,6 +60,14 @@ func select_crew(crew: CrewMember) -> void:
 	selected_crew = crew
 	if selected_crew != null:
 		selected_crew.is_selected = true
+
+
+## Returns the station on a tile, or null if there's none.
+func station_at(tile: Vector2i) -> Station:
+	for child in get_children():
+		if child is Station and child.has_tile(tile):
+			return child
+	return null
 
 
 ## Returns the crew member whose circle contains a point, or null if none does.

@@ -8,6 +8,8 @@ extends Node2D
 @export var radius := 16.0
 ## How fast the crew member walks, in pixels per second.
 @export var walk_speed := 150.0
+## How much health per second this crew member restores to a station.
+@export var repair_rate := 10.0
 @export var selected_color := Color(0.3, 0.9, 0.3)
 
 ## The tiles still to walk through, in order. Empty means standing still.

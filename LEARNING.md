@@ -285,3 +285,16 @@ keeping looks separate from logic.
 - The bar is two rectangles: a dark full-width background, then green at
   `width × health / max_health` on top.
 - Stations aren't walls, so crew can stand on them.
+
+### Step 7b — Crew repair a station by standing on it
+
+- Repair has the same shape as walking: each frame, `health` rises by
+  `repair_rate × delta` (health per second), just as position moves by
+  `walk_speed × delta`.
+- The **floorplan** connects crew and stations in `_process`: every idle
+  crew member (`not is_walking()`) on a station's tile (`station_at`)
+  repairs it. Crew don't know about stations and vice versa.
+- `station.health += ...` goes through the station's setter, so clamping
+  and redrawing happen automatically.
+- `repair_rate` lives on the crew member, so crew can differ in skill.
+  Two crew on one station repair twice as fast.
