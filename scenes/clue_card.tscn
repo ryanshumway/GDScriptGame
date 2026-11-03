@@ -26,6 +26,7 @@ theme_override_constants/margin_bottom = 20
 theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="Panel/Padding/Stack"]
+unique_name_in_owner = true
 text = "Clue found!"
 theme_override_font_sizes/font_size = 28
 

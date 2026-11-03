@@ -9,6 +9,7 @@ extends CanvasLayer
 @export var slide_distance := 30.0
 
 @onready var panel: PanelContainer = $Panel
+@onready var title_label: Label = %Title
 @onready var description_label: Label = %Description
 @onready var close_button: Button = %CloseButton
 
@@ -18,9 +19,10 @@ func _ready() -> void:
 	close_button.pressed.connect(close)
 
 
-## Shows the card with a clue's description and pauses the game.
-func show_clue(description: String) -> void:
-	description_label.text = description
+## Shows the card for a clue and pauses the game.
+func show_clue(clue: Clue) -> void:
+	title_label.text = "You found: " + clue.item_name
+	description_label.text = clue.description
 	get_tree().paused = true
 	show()
 

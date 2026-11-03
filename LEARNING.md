@@ -37,6 +37,10 @@
 - **`connect()`** — Subscribes a function to a signal:
   `clue.found.connect(card.show_clue)`. The function then runs every time
   the signal is emitted. Like `addEventListener`.
+- **Class cache** — Godot's list of every `class_name` in the project
+  (kept in `.godot/`). It's updated when the editor scans files, so a
+  script created outside the editor can cause "Could not find type X"
+  until you use Project → Reload Current Project.
 - **`const`** — A value that never changes.
 - **`continue`** — Inside a loop, skips straight to the next item. Like
   `continue` in JS and Swift. Handy as an early return for one loop item.
@@ -96,6 +100,9 @@
   distance from the click to its center less than its radius?
 - **`is_queued_for_deletion()`** — True once `queue_free()` has been
   called on a node but it hasn't been deleted yet.
+- **`in`** — True if a value is in an array: `"Old key" in items`. Like
+  JS `.includes()` or Swift's `.contains()`.
+- **Inventory** — Our name for the team's shared list of found items.
 - **`.import` file** — Small sidecar file Godot creates next to an asset
   (image, sound) recording how it was imported. Committed to git.
 - **Input event (`InputEvent`)** — An object describing one input: a key
@@ -104,6 +111,9 @@
   properties of the selected node, including its attached script.
 - **Instance (of a scene)** — A copy of a saved scene placed inside another
   scene. Like writing `<Room />` in JSX.
+- **`join()`** — Glues an array of strings together with a separator:
+  `", ".join(["a", "b"])` → `"a, b"`. Note the separator comes first,
+  unlike JS `["a", "b"].join(", ")`.
 - **`Label`** — A Control that shows text, like SwiftUI `Text`. Set
   `autowrap_mode` so long text wraps instead of running off the edge.
 - **`MarginContainer`** — Adds space around its child. Padding, in CSS
@@ -117,6 +127,9 @@
   never overshooting. `position.move_toward(target, speed * delta)`.
 - **`offset` (CanvasLayer)** — Shifts everything on the layer by some
   pixels without disturbing its layout. Handy for sliding UI in.
+- **`_on_..._found` naming** — Godot's convention for a function that
+  responds to a signal: `_on_` + what happened. Like `handleClick` in
+  React.
 - **`.new()`** — Creates an object from a class: `AStarGrid2D.new()`. Like
   `new X()` in JS or `X()` in Swift. Objects that aren't nodes don't live in
   the scene tree and aren't drawn.
@@ -211,6 +224,8 @@
   time: `create_tween().tween_property(node, "modulate:a", 1.0, 0.25)`.
   `set_parallel()` runs several at once instead of one after another.
   Like SwiftUI's `withAnimation`.
+- **`self`** — The node whose script is running, like `this` in JS or
+  `self` in Swift. `found.emit(self)` sends the clue itself.
 - **`.tscn` file** — A saved scene ("text scene"). Plain text, so it diffs
   nicely in git. If it changes outside the editor, use
   Scene → Reload Saved Scene to see the change.
@@ -415,3 +430,18 @@ keeping looks separate from logic.
   the layer's `offset` up 30 px over 0.25 s, easing out.
 - We slide the layer's `offset`, not the panel's position, because the
   panel's position is managed by its anchors and would fight the tween.
+
+### Step 9 — A shared inventory
+
+- `Inventory` is a plain `Node` (no position, nothing drawn): an
+  `Array[String]` of item names plus a `changed` signal. It belongs to
+  the whole team, not one crew member, like state lifted up to a parent
+  in React.
+- Clues now have an `item_name` and emit `found(self)`, so listeners get
+  the whole clue and read what they need.
+- One signal can have several listeners: each clue's `found` is
+  connected to both the card and the floorplan's `_on_clue_found`, which
+  adds the name to the inventory.
+- `InventoryLabel` in a `Hud` CanvasLayer listens for `changed` and
+  rewrites its text. Still no re-rendering: we tell it when to update.
+- `has(item)` isn't used yet. It's ready for the locked door.

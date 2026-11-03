@@ -12,15 +12,18 @@ var selected_crew: CrewMember = null
 
 ## The card that pops up when any clue is found.
 @export var clue_card: ClueCard
+## The team's shared inventory. Found clues are added to it.
+@export var inventory: Inventory
 
 @onready var tile_highlight: TileHighlight = $TileHighlight
 
 
 func _ready() -> void:
-	# Every clue in the floorplan shows the card when it's found.
+	# Every clue in the floorplan shows the card and goes in the inventory when it's found.
 	for child in get_children():
 		if child is Clue:
 			child.found.connect(clue_card.show_clue)
+			child.found.connect(_on_clue_found)
 
 
 	pathfinder.region = Rect2i(Vector2i.ZERO, grid_size)
@@ -68,6 +71,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			var path := pathfinder.get_id_path(selected_crew.tile_position, tile)
 			# The first tile in the path is where the crew member already is.
 			selected_crew.walk_path(path.slice(1))
+
+
+## Runs when any clue is found: remembers it in the team's inventory.
+func _on_clue_found(clue: Clue) -> void:
+	inventory.add(clue.item_name)
 
 
 ## Selects a crew member, or nobody if given null. Deselects the previous one.
