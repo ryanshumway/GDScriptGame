@@ -8,12 +8,14 @@
 [ext_resource type="PackedScene" path="res://scenes/wall.tscn" id="6_wall"]
 [ext_resource type="PackedScene" path="res://scenes/station.tscn" id="7_station"]
 [ext_resource type="PackedScene" path="res://scenes/clue.tscn" id="8_clue"]
+[ext_resource type="PackedScene" path="res://scenes/clue_card.tscn" id="9_card"]
 
 [node name="Main" type="Node2D" unique_id=972698724]
 
-[node name="Floorplan" type="Node2D" parent="." unique_id=1029495219]
+[node name="Floorplan" type="Node2D" parent="." unique_id=1029495219 node_paths=PackedStringArray("clue_card")]
 position = Vector2(376, 240)
 script = ExtResource("3_floorplan")
+clue_card = NodePath("../ClueCard")
 
 [node name="RoomA" parent="Floorplan" unique_id=1910505481 instance=ExtResource("1_room")]
 
@@ -43,3 +45,5 @@ script = ExtResource("5_highlight")
 [node name="CrewMember2" parent="Floorplan" instance=ExtResource("2_crew")]
 tile_position = Vector2i(8, 3)
 color = Color(0.95, 0.75, 0.55, 1)
+
+[node name="ClueCard" parent="." instance=ExtResource("9_card")]

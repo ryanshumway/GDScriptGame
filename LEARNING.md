@@ -10,7 +10,15 @@
 - **`AStarGrid2D`** — Godot's built-in A\* for square grids. Set its
   `region` (grid size), call `update()`, mark blocked tiles with
   `set_point_solid()`, then ask `get_id_path(from, to)` for a list of tiles.
+- **Anchors** — Where a Control pins itself inside its parent, as 0–1
+  fractions. All four at `0.5` pins it to the center; with "grow both"
+  it expands outward from there, like centering with flexbox.
 - **`back()`** — Returns the last item of an array. Like JS `.at(-1)`.
+- **`Button`** — A clickable Control. Its `pressed` signal fires when
+  clicked. Clicks a button uses aren't passed on to `_unhandled_input`.
+- **`CanvasLayer`** — A separate drawing layer on top of the game world
+  that ignores the camera. UI lives here so it stays fixed on screen, like
+  `position: fixed` with a high `z-index`.
 - **`clampf()`** — Forces a decimal into a range: `clampf(150, 0, 100)` →
   `100`. Like `Math.min(Math.max(v, lo), hi)`. `clampi` is the whole-number
   version.
@@ -23,9 +31,14 @@
 - **Clue** — Our theme-agnostic name for something hidden in a room that
   the player finds (a torn map, a strange herb, a creature sighting…).
   Stepping on it finds it, and then it's removed.
+- **`connect()`** — Subscribes a function to a signal:
+  `clue.found.connect(card.show_clue)`. The function then runs every time
+  the signal is emitted. Like `addEventListener`.
 - **`const`** — A value that never changes.
 - **`continue`** — Inside a loop, skips straight to the next item. Like
   `continue` in JS and Swift. Handy as an early return for one loop item.
+- **Control** — The family of UI nodes (`Label`, `Button`, containers…).
+  Unlike `Node2D`, they have a size and can be laid out automatically.
 - **Default vs. override** — The value written in a script
   (`@export var x := 5`) is the *default*. Changing it on one node in the
   Inspector *overrides* it for that node only, and a ↺ arrow appears to
@@ -53,6 +66,8 @@
   with a default value.
 - **`@export_multiline`** — Like `@export`, but gives a text variable a
   big multi-line text box in the Inspector instead of a single line.
+- **`emit()`** — Fires a signal, passing its values to every connected
+  function: `found.emit(description)`.
 - **`extends`** — Says which built-in node type a script builds on, like
   subclassing in Swift (`class Room: Node2D`).
 - **FileSystem panel** — Bottom-left in the editor. Shows files and folders
@@ -84,6 +99,10 @@
   properties of the selected node, including its attached script.
 - **Instance (of a scene)** — A copy of a saved scene placed inside another
   scene. Like writing `<Room />` in JSX.
+- **`Label`** — A Control that shows text, like SwiftUI `Text`. Set
+  `autowrap_mode` so long text wraps instead of running off the edge.
+- **`MarginContainer`** — Adds space around its child. Padding, in CSS
+  terms.
 - **Main scene** — The scene Godot starts when you press Play. Set in
   `project.godot` (`run/main_scene`).
 - **`move_toward()`** — Moves a point up to N pixels toward another point,
@@ -104,10 +123,15 @@
   child nodes exist. Used with `$`: `@onready var room: Room = $Room`.
 - **`PackedVector2Array`** — A compact list of `Vector2`s. Drawing
   functions that take many points (like `draw_colored_polygon`) want one.
+- **`PanelContainer`** — A box with a background that sizes itself to fit
+  its child. Like a `div` with a background color.
 - **Play (▶)** — Runs the game in a new window. ⌘B on Mac (F5 elsewhere);
   ⌘R runs only the open scene; ⌘. stops. No terminal or dev server.
 - **`pop_front()`** — Removes and returns the first item of an array. Like
   JS `shift()`.
+- **`%Name` (unique name)** — Mark a node "Access as Unique Name" (the `%`
+  icon) and scripts can find it with `%Name` however deeply it's nested,
+  instead of spelling out `$Panel/Padding/Stack/Name`.
 - **Position (local)** — A node's position is relative to its parent, not
   the screen. Move the parent and all children move with it.
 - **`_process(delta)`** — Called by Godot on every node, once per frame.
@@ -155,6 +179,10 @@
   JS `.slice(n)`.
 - **Solid tile** — A tile the pathfinder may not step on (walls, empty
   space).
+- **Signal** — A named announcement a node makes ("I was found!") that
+  any number of other nodes can listen for. Declared with
+  `signal found(description: String)`. Like a callback prop or a
+  NotificationCenter post, but with many listeners.
 - **Station** — Our theme-agnostic name for a spot where crew do work
   (a generator, a barricade, a helm…). Has health; crew repair it.
 - **Tile** — One square cell of a grid. Game logic thinks in tiles
@@ -171,6 +199,8 @@
   no UI element used up. Where game clicks and key presses are handled.
 - **`_unused` (leading underscore)** — Prefixing a parameter with `_`
   (e.g. `_delta`) says "I'm not using this," which silences a warning.
+- **`VBoxContainer`** — Stacks its children top to bottom, like `VStack`
+  or a flex column. `HBoxContainer` goes side to side.
 - **Viewport** — The area the game draws into. Its size is set in
   `project.godot` (we use 1280×720).
 - **`visible` / `show()` / `hide()`** — Every node can be hidden without
@@ -334,3 +364,17 @@ keeping looks separate from logic.
   `queue_free()` removes it. `clue_at` ignores clues already queued for
   deletion, so one clue can't be found twice in the same frame.
 - The clue sits behind the wall, so you have to explore around it.
+
+### Step 8b — A clue card
+
+- `Clue` no longer prints. It declares `signal found(description)` and
+  emits it, so it doesn't need to know who's listening.
+- `ClueCard` is a `CanvasLayer` scene so it draws on top of the game:
+  `PanelContainer` → `MarginContainer` → `VBoxContainer` → title,
+  description and a "Got it" button. Containers handle the layout.
+- The floorplan has an `@export var clue_card: ClueCard`, set in
+  `main.tscn`. In `_ready` it connects every clue's `found` signal to
+  `clue_card.show_clue`, so ten clues would need no extra code.
+- The button's `pressed` signal is connected straight to `hide`.
+- The UI is still changed directly (`label.text = ...`). Nothing
+  re-renders from state the way React does.

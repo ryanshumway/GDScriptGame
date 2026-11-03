@@ -2,6 +2,9 @@ class_name Clue
 extends Node2D
 ## Something hidden in a room. A crew member who steps on it finds it.
 
+## Emitted when the clue is found, carrying what the player learns.
+signal found(description: String)
+
 ## Which floorplan tile the clue sits on.
 @export var grid_position := Vector2i(0, 0)
 ## What the player learns when the clue is found.
@@ -31,7 +34,7 @@ func has_tile(tile: Vector2i) -> bool:
 	return tile == grid_position
 
 
-## Called when a crew member steps on the clue: report it, then remove it from the game.
+## Called when a crew member steps on the clue: announce it, then remove it from the game.
 func find() -> void:
-	print("Clue found: ", description)
+	found.emit(description)
 	queue_free()

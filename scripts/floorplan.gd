@@ -10,10 +10,19 @@ var pathfinder := AStarGrid2D.new()
 ## The crew member that right-clicks will move. Null when nobody is selected.
 var selected_crew: CrewMember = null
 
+## The card that pops up when any clue is found.
+@export var clue_card: ClueCard
+
 @onready var tile_highlight: TileHighlight = $TileHighlight
 
 
 func _ready() -> void:
+	# Every clue in the floorplan shows the card when it's found.
+	for child in get_children():
+		if child is Clue:
+			child.found.connect(clue_card.show_clue)
+
+
 	pathfinder.region = Rect2i(Vector2i.ZERO, grid_size)
 	pathfinder.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
 	pathfinder.update()
