@@ -20,7 +20,12 @@
   divide by 255 to convert). Optional 4th value is alpha (opacity).
   Hex works too: `Color("#5C7A99")`. `@export`ed colors get a color
   picker in the Inspector.
+- **Clue** — Our theme-agnostic name for something hidden in a room that
+  the player finds (a torn map, a strange herb, a creature sighting…).
+  Stepping on it finds it, and then it's removed.
 - **`const`** — A value that never changes.
+- **`continue`** — Inside a loop, skips straight to the next item. Like
+  `continue` in JS and Swift. Handy as an early return for one loop item.
 - **Default vs. override** — The value written in a script
   (`@export var x := 5`) is the *default*. Changing it on one node in the
   Inspector *overrides* it for that node only, and a ↺ arrow appears to
@@ -32,6 +37,8 @@
   itself. You draw shapes inside it with `draw_rect`, `draw_circle`, etc.
   Runs once, then again only when asked (`queue_redraw()`), not every frame.
   By default it only runs in the game, not in the editor's canvas.
+- **`draw_colored_polygon()`** — Fills a shape given its corner points,
+  e.g. four points make a diamond.
 - **Draw order** — Siblings draw top to bottom in the Scene panel, so the
   last child is on top. Children draw over their parent. Inside `_draw`,
   later calls paint over earlier ones. `z_index` overrides this, like CSS.
@@ -44,6 +51,8 @@
 - **`@export`** — Marks a variable so it shows up in the editor's
   Inspector, where you can change it without touching code. Like a prop
   with a default value.
+- **`@export_multiline`** — Like `@export`, but gives a text variable a
+  big multi-line text box in the Inspector instead of a single line.
 - **`extends`** — Says which built-in node type a script builds on, like
   subclassing in Swift (`class Room: Node2D`).
 - **FileSystem panel** — Bottom-left in the editor. Shows files and folders
@@ -65,6 +74,8 @@
   (`health / max_health`), like a progress bar's `width: 40%`.
 - **Hit test** — Working out what's under the mouse. For a circle: is the
   distance from the click to its center less than its radius?
+- **`is_queued_for_deletion()`** — True once `queue_free()` has been
+  called on a node but it hasn't been deleted yet.
 - **`.import` file** — Small sidecar file Godot creates next to an asset
   (image, sound) recording how it was imported. Committed to git.
 - **Input event (`InputEvent`)** — An object describing one input: a key
@@ -91,6 +102,8 @@
   currently doesn't. Like `nil` in Swift or `null` in JS.
 - **`@onready`** — Fills in a variable just before `_ready()` runs, when
   child nodes exist. Used with `$`: `@onready var room: Room = $Room`.
+- **`PackedVector2Array`** — A compact list of `Vector2`s. Drawing
+  functions that take many points (like `draw_colored_polygon`) want one.
 - **Play (▶)** — Runs the game in a new window. ⌘B on Mac (F5 elsewhere);
   ⌘R runs only the open scene; ⌘. stops. No terminal or dev server.
 - **`pop_front()`** — Removes and returns the first item of an array. Like
@@ -101,8 +114,15 @@
   Where continuous things like movement happen.
 - **Project Manager** — The launcher window Godot shows first, listing your
   projects. Not the editor itself.
+- **`print()`** — Writes text to the **Output** panel at the bottom of the
+  editor. Like `console.log` or Swift's `print`. Commas join several
+  values: `print("Found: ", description)`.
 - **`project.godot`** — The file that makes a folder a Godot project. Holds
   project settings (name, window size, main scene). Like `package.json`.
+- **`queue_free()`** — Deletes a node (and its children) at the end of
+  the current frame, so nothing breaks while other code is still using
+  it this frame. Like a React component unmounting. Compare `hide()`,
+  which only makes a node invisible.
 - **`queue_redraw()`** — Asks Godot to run a node's `_draw()` again next
   frame. Changing a variable does *not* redraw on its own (unlike React).
 - **Radians / `TAU`** — Godot measures angles in radians, not degrees.
@@ -298,3 +318,19 @@ keeping looks separate from logic.
   and redrawing happen automatically.
 - `repair_rate` lives on the crew member, so crew can differ in skill.
   Two crew on one station repair twice as fast.
+
+## Milestone 3 — Mystery
+
+### Step 8a — A clue to find
+
+- `Clue` is its own scene, like `Station`: one tile, drawn as a yellow
+  diamond, with a `description` saying what the player learns.
+- The floorplan's per-frame loop now checks every crew member, walking or
+  not, so you find a clue just by passing through its tile. Repairing
+  still needs the crew member to stand still.
+- `continue` skips anything that isn't a crew member, so the rest of the
+  loop body doesn't need an extra level of indentation.
+- Finding a clue calls `print()` (shown in the Output panel), then
+  `queue_free()` removes it. `clue_at` ignores clues already queued for
+  deletion, so one clue can't be found twice in the same frame.
+- The clue sits behind the wall, so you have to explore around it.

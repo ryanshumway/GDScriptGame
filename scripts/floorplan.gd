@@ -30,9 +30,17 @@ func _process(delta: float) -> void:
 	else:
 		tile_highlight.hide()
 
-	# Crew standing still on a station repair it.
 	for child in get_children():
-		if child is CrewMember and not child.is_walking():
+		if not (child is CrewMember):
+			continue
+
+		# Crew who step on a clue find it, even if they're just passing through.
+		var clue := clue_at(child.tile_position)
+		if clue != null:
+			clue.find()
+
+		# Crew standing still on a station repair it.
+		if not child.is_walking():
 			var station := station_at(child.tile_position)
 			if station != null:
 				station.health += child.repair_rate * delta
@@ -66,6 +74,14 @@ func select_crew(crew: CrewMember) -> void:
 func station_at(tile: Vector2i) -> Station:
 	for child in get_children():
 		if child is Station and child.has_tile(tile):
+			return child
+	return null
+
+
+## Returns the clue on a tile, or null if there's none (or it's already been found).
+func clue_at(tile: Vector2i) -> Clue:
+	for child in get_children():
+		if child is Clue and child.has_tile(tile) and not child.is_queued_for_deletion():
 			return child
 	return null
 

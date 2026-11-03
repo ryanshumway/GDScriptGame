@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/tile_highlight.gd" id="5_highlight"]
 [ext_resource type="PackedScene" path="res://scenes/wall.tscn" id="6_wall"]
 [ext_resource type="PackedScene" path="res://scenes/station.tscn" id="7_station"]
+[ext_resource type="PackedScene" path="res://scenes/clue.tscn" id="8_clue"]
 
 [node name="Main" type="Node2D" unique_id=972698724]
 
@@ -29,6 +30,9 @@ size_in_tiles = Vector2i(1, 4)
 
 [node name="Station" parent="Floorplan" instance=ExtResource("7_station")]
 grid_position = Vector2i(9, 1)
+
+[node name="Clue" parent="Floorplan" instance=ExtResource("8_clue")]
+grid_position = Vector2i(4, 0)
 
 [node name="TileHighlight" type="Node2D" parent="Floorplan"]
 visible = false
