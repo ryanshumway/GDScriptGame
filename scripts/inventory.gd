@@ -5,16 +5,20 @@ extends Node
 ## Emitted whenever an item is added, so displays can update.
 signal changed
 
-## The names of the items found so far, in the order they were found.
-var items: Array[String] = []
+## The items found so far, in order. Each is a dictionary like
+## { "name": "Old key", "color": Color(...) }.
+var items: Array[Dictionary] = []
 
 
 ## Adds an item and lets listeners know.
-func add(item: String) -> void:
-	items.append(item)
+func add(item_name: String, color: Color) -> void:
+	items.append({ "name": item_name, "color": color })
 	changed.emit()
 
 
 ## True if the team has found an item with this name.
-func has(item: String) -> bool:
-	return item in items
+func has(item_name: String) -> bool:
+	for item in items:
+		if item["name"] == item_name:
+			return true
+	return false

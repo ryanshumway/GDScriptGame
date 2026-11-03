@@ -5,6 +5,8 @@
 - **A\* ("A-star")** — A classic search for the shortest route on a map.
   Explores tiles in order of *steps so far + guessed steps remaining*, so
   it heads toward the goal and fans out around walls.
+- **`add_child()`** — Puts a node into the tree under another node. Nodes
+  made in code with `.new()` don't appear until you add them.
 - **Alpha** — A color's opacity, the 4th value in `Color(r, g, b, a)`.
   `1.0` is solid, `0.35` is mostly see-through.
 - **`AStarGrid2D`** — Godot's built-in A\* for square grids. Set its
@@ -42,6 +44,8 @@
   script created outside the editor can cause "Could not find type X"
   until you use Project → Reload Current Project.
 - **`const`** — A value that never changes.
+- **`custom_minimum_size`** — The smallest a Control may be. Containers
+  never shrink it below this, so it's how you give a slot a fixed size.
 - **`continue`** — Inside a loop, skips straight to the next item. Like
   `continue` in JS and Swift. Handy as an early return for one loop item.
 - **Control** — The family of UI nodes (`Label`, `Button`, containers…).
@@ -50,6 +54,9 @@
   (`@export var x := 5`) is the *default*. Changing it on one node in the
   Inspector *overrides* it for that node only, and a ↺ arrow appears to
   reset it. Like a default prop value vs. a prop you pass.
+- **Dictionary** — Key–value pairs: `{ "name": "Old key", "color": c }`.
+  Like a JS object or a Swift `[String: Any]`. Read with `item["name"]`,
+  or `item.get("name", "")` to get a fallback when the key is missing.
 - **`delta`** — The number of seconds since the last frame (about 0.016 at
   60 FPS). Multiply speeds by it so movement is the same on fast and slow
   computers: `distance = speed * delta`.
@@ -107,6 +114,8 @@
   (image, sound) recording how it was imported. Committed to git.
 - **Input event (`InputEvent`)** — An object describing one input: a key
   press, a mouse move, a click. Mouse clicks are `InputEventMouseButton`.
+- **`_init()`** — Runs the moment an object is created, before it's in
+  the tree. Like a constructor or Swift `init`. (`_ready` comes later.)
 - **Inspector** — Right-hand panel in the editor. Shows and edits the
   properties of the selected node, including its attached script.
 - **Instance (of a scene)** — A copy of a saved scene placed inside another
@@ -226,6 +235,7 @@
   Like SwiftUI's `withAnimation`.
 - **`self`** — The node whose script is running, like `this` in JS or
   `self` in Swift. `found.emit(self)` sends the clue itself.
+- **`tooltip_text`** — Text a Control shows when the mouse rests on it.
 - **`.tscn` file** — A saved scene ("text scene"). Plain text, so it diffs
   nicely in git. If it changes outside the editor, use
   Scene → Reload Saved Scene to see the change.
@@ -445,3 +455,17 @@ keeping looks separate from logic.
 - `InventoryLabel` in a `Hud` CanvasLayer listens for `changed` and
   rewrites its text. Still no re-rendering: we tell it when to update.
 - `has(item)` isn't used yet. It's ready for the locked door.
+
+### Step 10 — A visual inventory bar
+
+- The text label is gone. `InventoryBar` (an `HBoxContainer` in the
+  `Hud`) is anchored bottom center and holds a row of `InventorySlot`s.
+- Each inventory item is now a **dictionary** with a name and a color,
+  so the bar can draw it. `has()` loops through and compares names.
+- The bar builds its slots in code (`InventorySlot.new()` +
+  `add_child()`), so `slot_count` can be changed in the Inspector.
+- `InventorySlot` is a `Control` that draws itself with `_draw()`, like
+  our rooms and stations: a dark square, a border, and a diamond in the
+  item's color when filled. Its `item` setter updates the tooltip and
+  redraws.
+- Empty slots show how many things are left to find.

@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" path="res://scenes/clue.tscn" id="8_clue"]
 [ext_resource type="PackedScene" path="res://scenes/clue_card.tscn" id="9_card"]
 [ext_resource type="Script" path="res://scripts/inventory.gd" id="10_inventory"]
-[ext_resource type="Script" path="res://scripts/inventory_label.gd" id="11_inv_label"]
+[ext_resource type="Script" path="res://scripts/inventory_bar.gd" id="11_inv_bar"]
 
 [node name="Main" type="Node2D" unique_id=972698724]
 
@@ -45,6 +45,7 @@ description = "A small iron key, hidden behind the wall. What could it open?"
 grid_position = Vector2i(7, 4)
 item_name = "Torn note"
 description = "Half a page of handwriting. Someone was here before you."
+color = Color(0.85, 0.85, 0.95, 1)
 
 [node name="TileHighlight" type="Node2D" parent="Floorplan"]
 visible = false
@@ -63,9 +64,16 @@ script = ExtResource("10_inventory")
 
 [node name="Hud" type="CanvasLayer" parent="."]
 
-[node name="InventoryLabel" type="Label" parent="Hud" node_paths=PackedStringArray("inventory")]
-offset_left = 16.0
-offset_top = 16.0
-theme_override_font_sizes/font_size = 20
-script = ExtResource("11_inv_label")
+[node name="InventoryBar" type="HBoxContainer" parent="Hud" node_paths=PackedStringArray("inventory")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -80.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 8
+script = ExtResource("11_inv_bar")
 inventory = NodePath("../../Inventory")

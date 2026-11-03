@@ -75,7 +75,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Runs when any clue is found: remembers it in the team's inventory.
 func _on_clue_found(clue: Clue) -> void:
-	inventory.add(clue.item_name)
+	inventory.add(clue.item_name, clue.color)
 
 
 ## Selects a crew member, or nobody if given null. Deselects the previous one.
