@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/clue_card.gd" id="1_card"]
 
 [node name="ClueCard" type="CanvasLayer"]
+process_mode = 3
 script = ExtResource("1_card")
 
 [node name="Panel" type="PanelContainer" parent="."]

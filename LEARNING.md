@@ -24,6 +24,9 @@
   version.
 - **`class_name`** — Gives a script a global name (e.g. `Room`) so other
   scripts can use it as a type and read its constants (`Room.TILE_SIZE`).
+- **Easing (`set_ease` / `set_trans`)** — The shape of an animation's
+  speed. `EASE_OUT` starts fast and settles gently; `TRANS_CUBIC` sets how
+  strong that curve is. Like CSS `ease-out`.
 - **`Color`** — `Color(r, g, b)` with each channel 0.0–1.0 (not 0–255;
   divide by 255 to convert). Optional 4th value is alpha (opacity).
   Hex works too: `Color("#5C7A99")`. `@export`ed colors get a color
@@ -83,6 +86,8 @@
   (indentation instead of braces), built to work closely with nodes.
 - **`get_children()`** — Returns a list of a node's direct children, so
   you can loop over them: `for child in get_children():`.
+- **`get_tree()`** — Returns the scene tree (the whole running game) from
+  any node. `get_tree().paused = true` pauses the game.
 - **`.godot/` folder** — Godot's cache of processed files. Rebuilt
   automatically, so it's ignored by git.
 - **Health / max health** — Two numbers; a health bar shows their ratio
@@ -105,8 +110,13 @@
   terms.
 - **Main scene** — The scene Godot starts when you press Play. Set in
   `project.godot` (`run/main_scene`).
+- **`modulate`** — A color multiplied over a node and its children.
+  `modulate.a` is its opacity, so `0.0` is invisible. The `"modulate:a"`
+  path lets a tween animate just that one part.
 - **`move_toward()`** — Moves a point up to N pixels toward another point,
   never overshooting. `position.move_toward(target, speed * delta)`.
+- **`offset` (CanvasLayer)** — Shifts everything on the layer by some
+  pixels without disturbing its layout. Handy for sliding UI in.
 - **`.new()`** — Creates an object from a class: `AStarGrid2D.new()`. Like
   `new X()` in JS or `X()` in Swift. Objects that aren't nodes don't live in
   the scene tree and aren't drawn.
@@ -125,6 +135,9 @@
   functions that take many points (like `draw_colored_polygon`) want one.
 - **`PanelContainer`** — A box with a background that sizes itself to fit
   its child. Like a `div` with a background color.
+- **Pausing (`get_tree().paused`)** — Stops Godot calling `_process` and
+  input functions on nodes, so the whole game freezes with no "if paused"
+  checks in our code.
 - **Play (▶)** — Runs the game in a new window. ⌘B on Mac (F5 elsewhere);
   ⌘R runs only the open scene; ⌘. stops. No terminal or dev server.
 - **`pop_front()`** — Removes and returns the first item of an array. Like
@@ -141,6 +154,9 @@
 - **`print()`** — Writes text to the **Output** panel at the bottom of the
   editor. Like `console.log` or Swift's `print`. Commas join several
   values: `print("Found: ", description)`.
+- **`process_mode`** — How a node behaves while the game is paused.
+  **Inherit** (the default) copies its parent; **Pausable** freezes;
+  **Always** keeps running. Set under Process → Mode in the Inspector.
 - **`project.godot`** — The file that makes a folder a Godot project. Holds
   project settings (name, window size, main scene). Like `package.json`.
 - **`queue_free()`** — Deletes a node (and its children) at the end of
@@ -169,25 +185,32 @@
 - **Scene panel** — Top-left in the editor. Shows the node tree of the open
   scene, like Xcode's view hierarchy. Drop a script on a node here to
   attach it.
+- **Scene tree** — The whole running game as one tree of nodes, from
+  `Main` down. (Different from the Scene panel, which shows one scene
+  being edited.)
 - **Selection state** — Which object the player has picked. Kept in one
   place (the floorplan's `selected_crew`) since only one can be selected.
 - **Setter (`set(value):`)** — Code that runs whenever a variable is
   assigned. Like Swift's `didSet`. We use it to redraw on change.
+- **Signal** — A named announcement a node makes ("I was found!") that
+  any number of other nodes can listen for. Declared with
+  `signal found(description: String)`. Like a callback prop or a
+  NotificationCenter post, but with many listeners.
 - **`signi()`** — Turns a whole number into -1, 0 or 1 depending on its
   sign. `signi(-3)` → `-1`.
 - **`slice(n)`** — Returns a copy of an array from index `n` onward. Like
   JS `.slice(n)`.
 - **Solid tile** — A tile the pathfinder may not step on (walls, empty
   space).
-- **Signal** — A named announcement a node makes ("I was found!") that
-  any number of other nodes can listen for. Declared with
-  `signal found(description: String)`. Like a callback prop or a
-  NotificationCenter post, but with many listeners.
 - **Station** — Our theme-agnostic name for a spot where crew do work
   (a generator, a barricade, a helm…). Has health; crew repair it.
 - **Tile** — One square cell of a grid. Game logic thinks in tiles
   (`(2, 3)`); drawing thinks in pixels (`(120, 168)`). Converting between
   the two is a constant job.
+- **Tween** — Animates a property from its current value to a target over
+  time: `create_tween().tween_property(node, "modulate:a", 1.0, 0.25)`.
+  `set_parallel()` runs several at once instead of one after another.
+  Like SwiftUI's `withAnimation`.
 - **`.tscn` file** — A saved scene ("text scene"). Plain text, so it diffs
   nicely in git. If it changes outside the editor, use
   Scene → Reload Saved Scene to see the change.
@@ -378,3 +401,17 @@ keeping looks separate from logic.
 - The button's `pressed` signal is connected straight to `hide`.
 - The UI is still changed directly (`label.text = ...`). Nothing
   re-renders from state the way React does.
+
+### Step 8c — Pause and animate the card
+
+- Showing the card sets `get_tree().paused = true`; "Got it" sets it
+  back. Crew freeze mid-step because Godot stops calling their
+  `_process`. Nothing in `crew_member.gd` changed.
+- The ClueCard's **Process → Mode** is **Always** (`process_mode = 3` in
+  `clue_card.tscn`) so the card, its button and its tween keep working
+  while everything else is paused. Without it, the card appeared but
+  stayed fully transparent, because its fade-in tween was paused too.
+- A parallel tween fades the panel's `modulate:a` from 0 to 1 and slides
+  the layer's `offset` up 30 px over 0.25 s, easing out.
+- We slide the layer's `offset`, not the panel's position, because the
+  panel's position is managed by its anchors and would fight the tween.
